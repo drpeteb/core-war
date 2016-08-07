@@ -14,8 +14,6 @@ SINGLE_ARG_INSTRUCTIONS = ["JMP", "DAT"]
 
 ADDRESS_MODES = ["#", "", "@"]
 
-N = 8000
-
 def compile_redcode(lines):
     """
     Compile an array of string (each one a line of redcode) into a list of
@@ -51,7 +49,6 @@ def compile_redcode(lines):
             address = int(b)
         except:
             raise SyntaxError("Non-numerical address: " + b)
-        address = address % N
 
         return mode, address
 
@@ -86,10 +83,21 @@ def compile_redcode(lines):
             modeA = 0
             addressA = 0
 
-        inst = "{:01}{:01}{:01}{:04}{:04}".format(code, modeA, modeB, addressA, addressB)
+        inst = Instruction(code, modeA, modeB, addressA, addressB)
         instructions.append(inst)
 
     return instructions
+
+class Instruction:
+    """
+    A redcode instruction
+    """
+    def __init__(self, code, modeA, modeB, addressA, addressB):
+        self.code = code
+        self.modeA = modeA
+        self.modeB = modeB
+        self.addressA = addressA
+        self.addressB = addressB
 
 
 class BattleProgram:
@@ -103,8 +111,3 @@ class BattleProgram:
         with open(file, 'r') as f:
             lines = f.readlines()
         self.instructions = compile_redcode(lines)
-
-        print("")
-        print(self.name)
-        for i in self.instructions:
-            print(i)
