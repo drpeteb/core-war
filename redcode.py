@@ -88,6 +88,14 @@ def compile_redcode(lines):
 
     return instructions
 
+def encode_instruction(inst, N, M):
+    format_str= "{:01}{:01}{:01}{:0" + str(M) + "}{:0" + str(M) + "}"
+    return int(format_str.format(inst.code,
+                                 inst.modeA,
+                                 inst.modeB,
+                                 inst.addressA % N,
+                                 inst.addressB % N))
+
 class Instruction:
     """
     A redcode instruction
