@@ -89,12 +89,24 @@ def compile_redcode(lines):
     return instructions
 
 def encode_instruction(inst, N, M):
-    format_str= "{:01}{:01}{:01}{:0" + str(M) + "}{:0" + str(M) + "}"
-    return int(format_str.format(inst.code,
-                                 inst.modeA,
-                                 inst.modeB,
-                                 inst.addressA % N,
-                                 inst.addressB % N))
+    mem = inst.code
+    mem = 10 * mem + inst.modeA
+    mem = 10 * mem + inst.modeB
+    mem = 10**M * mem + (inst.addressA % N)
+    mem = 10**M * mem + (inst.addressB % N)
+    return mem
+
+def decode_instruction(mem, M):
+    addressB = mem % (10**M)
+    mem = int(mem / (10**M))
+    addressA = mem % (10**M)
+    mem = int(mem / (10**M))
+    modeB = mem % 10
+    mem = int(mem / 10)
+    modeA = mem % 10
+    mem = int(mem / 10)
+    code = mem % 10
+    return Instruction(code, modeA, modeB, addressA, addressB)
 
 class Instruction:
     """
@@ -107,14 +119,19 @@ class Instruction:
         self.addressA = addressA
         self.addressB = addressB
 
+    def __str__(self):
+        return "Code:{}\nMode A:{}\nMode B:{}\nAddress A:{}\nAddress B:{}".format(
+                    self.code, self.modeA, self.modeB, self.addressA, self.addressB)
+
 
 class BattleProgram:
     """
     Redcode battle program
     """
 
-    def __init__(self, name, file):
+    def __init__(self, name, offset, file):
         self.name = name
+        self.offset = offset
 
         with open(file, 'r') as f:
             lines = f.readlines()
