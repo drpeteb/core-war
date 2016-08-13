@@ -41,16 +41,16 @@ def compile_redcode(lines):
             mode_str = a[0]
             b = a[1:]
         if mode_str not in ADDRESS_MODES:
-            raise SyntaxError("Unrecognised address mode: " + mode_str)
+            raise SyntaxError("Unrecognised address mode: {}".format(mode_str))
         mode = ADDRESS_MODES.index(mode_str)
 
-        # Address part
+        # Argument part
         try:
-            address = int(b)
+            argument = int(b)
         except:
-            raise SyntaxError("Non-numerical address: " + b)
+            raise SyntaxError("Non-numerical argument: {}".format(b))
 
-        return mode, address
+        return mode, argument
 
 
     instructions = []
@@ -64,26 +64,26 @@ def compile_redcode(lines):
 
         mnemonic, s = next_bit(s)
         if mnemonic not in INSTRUCTION_MNEMONICS:
-            raise SyntaxError("Unrecognised instruction: " + mnemonic)
+            raise SyntaxError("Unrecognised instruction: {}".format(mnemonic))
         code = INSTRUCTION_MNEMONICS.index(mnemonic)
 
         argA, s = next_bit(s)
-        modeA, addressA = parse_arg(argA)
+        modeA, argumentA = parse_arg(argA)
 
         if mnemonic not in SINGLE_ARG_INSTRUCTIONS:
             argB, s = next_bit(s)
-            modeB, addressB = parse_arg(argB)
+            modeB, argumentB = parse_arg(argB)
         else:
             modeB = 0
-            addressB = 0
+            argumentB = 0
 
         if mnemonic == "DAT":
-            addressB = addressA
+            argumentB = argumentA
             modeB = 0
             modeA = 0
-            addressA = 0
+            argumentA = 0
 
-        inst = Instruction(code, modeA, modeB, addressA, addressB)
+        inst = Instruction(code, modeA, modeB, argumentA, argumentB)
         instructions.append(inst)
 
     return instructions
@@ -92,36 +92,37 @@ def encode_instruction(inst, N, M):
     mem = inst.code
     mem = 10 * mem + inst.modeA
     mem = 10 * mem + inst.modeB
-    mem = 10**M * mem + (inst.addressA % N)
-    mem = 10**M * mem + (inst.addressB % N)
+    mem = 10**M * mem + (inst.argumentA % N)
+    mem = 10**M * mem + (inst.argumentB % N)
     return mem
 
 def decode_instruction(mem, M):
-    addressB = mem % (10**M)
+    argumentB = mem % (10**M)
     mem = int(mem / (10**M))
-    addressA = mem % (10**M)
+    argumentA = mem % (10**M)
     mem = int(mem / (10**M))
     modeB = mem % 10
     mem = int(mem / 10)
     modeA = mem % 10
     mem = int(mem / 10)
     code = mem % 10
-    return Instruction(code, modeA, modeB, addressA, addressB)
+    return Instruction(code, modeA, modeB, argumentA, argumentB)
+
 
 class Instruction:
     """
     A redcode instruction
     """
-    def __init__(self, code, modeA, modeB, addressA, addressB):
+    def __init__(self, code, modeA, modeB, argumentA, argumentB):
         self.code = code
         self.modeA = modeA
         self.modeB = modeB
-        self.addressA = addressA
-        self.addressB = addressB
+        self.argumentA = argumentA
+        self.argumentB = argumentB
 
     def __str__(self):
-        return "Code:{}\nMode A:{}\nMode B:{}\nAddress A:{}\nAddress B:{}".format(
-                    self.code, self.modeA, self.modeB, self.addressA, self.addressB)
+        return "Code:{}\nMode A:{}\nMode B:{}\nargument A:{}\nargument B:{}".format(
+                    self.code, self.modeA, self.modeB, self.argumentA, self.argumentB)
 
 
 class BattleProgram:
