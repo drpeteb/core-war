@@ -37,13 +37,13 @@ class Mars:
 
         for it in range(self.num_it):
 
-            print("{} to move:".format(self.name1))
+            print("\n{} to move:".format(self.name1))
             self.pointer1 = self.core.execute_instruction(self.pointer1)
             if self.pointer1 is None:
                 print("\n{} wins".format(self.name2))
                 return
 
-            print("{} to move:".format(self.name2))
+            print("\n{} to move:".format(self.name2))
             self.pointer2 = self.core.execute_instruction(self.pointer2)
             if self.pointer2 is None:
                 print("\n{} wins".format(self.name1))
@@ -94,7 +94,6 @@ class Core:
         mem = self.memory[pointer]
         inst = decode_instruction(mem, self.M)
 
-        print("")
         print(inst)
 
         addressA = self.dereference_address(inst.modeA, inst.argumentA, pointer)
